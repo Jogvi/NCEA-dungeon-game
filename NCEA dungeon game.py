@@ -35,6 +35,16 @@ def menu(hp):
     elif action in home_inputs:
         home()
 def delve(hp):
-    print('delve')
+    stage=r.randint(0,100)
+    if stage<=90:
+        fight(hp)
+    elif stage<=95:
+        shop()
+    elif stage>=99:
+        healer()
+    else:
+        print('You enter an empty room...')
+         menu(hp)
+def fight(hp):
     #do later
 menu(player.hp)
