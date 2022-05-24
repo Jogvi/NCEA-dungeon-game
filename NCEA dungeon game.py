@@ -97,10 +97,11 @@ def healer():
     menu()
 
 def game_over():
-    save=(f'would you like to save your score and name?')
+    save=input(f'would you like to save your score and name?')
     if save in yes_inputs:
-        with open('Saved_Scores') as f:
-            f.write(score)
+        with open('Save_Files\Saved_Scores.txt','w') as f:
+            f.write(str(player.score))
+            f.write('\n')
             f.write(player.name)
 
 class Lv1_ennemies:
