@@ -4,6 +4,7 @@ import pickle as p
 
 delve_inputs=['yes','y','delve','d','deeper','deep']
 home_inputs = ['h','home','back','b']
+save_inputs= ['s','save']
 
 class Lv1_ennemies:
     def __init__(self,name,damage,max_health):
@@ -25,10 +26,23 @@ class Player:
 print('Welcome to the dungeon of rickrollia!')
 player=Player(input('What is your name, fellow adventurer?'),10,30,50)
 
-def game_over:
-    print('Game Over!')
-    #finish later
+def save(obj,file):
+    slot=input('what save slot would you like to use?')
+    if slot==1:
+         save_file=Save1
+    elif slot==2:
+         save_file=Save2
+    elif slot == 3:
+         save_file=Save3
+    p.dump( player, open( save_file, "wb" ) )
 
+def load(file):
+    import_result=p.load(open(file,'rb'))
+    return import_result
+
+
+    
+    
 def header():
     print('header')
     #do later
@@ -40,6 +54,8 @@ def menu():
         delve()
     elif action in home_inputs:
         home()
+    elif action in save_inputs:
+        save
 def delve():
     stage=r.randint(0,100)
     if stage<=90:
