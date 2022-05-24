@@ -30,11 +30,11 @@ def save(obj):
     slot=input('what save slot would you like to use?')
     save_file=1
     if slot==1:
-         save_file=Save_Files\Save1.pkl
+         save_file='Save_Files\Save1.pkl'
     elif slot==2:
-         save_file=Save_Files\Save2.pkl
+         save_file='Save_Files\Save2.pkl'
     elif slot == 3:
-         save_file=Save_Files\Save3.pkl
+         save_file='Save_Files\Save3.pkl'
     p.dump( player, open( save_file, "wb" ) )
 
 def load(file):
@@ -102,4 +102,5 @@ def healer():
     print('healer')
     #do later
 menu()
+
 
