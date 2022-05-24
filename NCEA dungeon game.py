@@ -25,23 +25,25 @@ class Player:
         self.health=health
         self.money=money
 print('Welcome to the dungeon of rickrollia!')
-player=Player(input('What is your name, fellow adventurer?'),10,30,50)
+
 
 def save(obj):
     slot=input('what save slot would you like to use?')
     save_file='Save_Files\Save1.pkl'
     if slot=='1':
-         save_file='Save_Files\Save1.pkl'
+        save_file='Save_Files\Save1.pkl'
     elif slot=='2':
          save_file='Save_Files\Save2.pkl'
     elif slot == '3':
-         save_file='Save_Files\Save3.pkl'
+        save_file='Save_Files\Save3.pkl'
     p.dump( obj, open( save_file, "wb" ) )
     
 def load():
-    slot=input('What slot would you like to load?')
-    import_result=p.load(open(file,'rb'))
-    return import_result
+#   obj=[]
+   slot=input('What slot would you like to load?')
+   with open('Save_Files\Save1.pkl', 'rb') as data:
+            obj = p.load(data)
+   return obj
 
 
     
@@ -51,16 +53,15 @@ def header():
     #do later
 
 def menu():
-    action=input(f'You now have {player.health} health points left. Would you like to delve'\
-          'deeper in the dungeon, or go home? You can also choose to save by typing {save_inputs} or load with {load_inputs}')
+   
     if action in delve_inputs:
         delve()
     elif action in home_inputs:
         home()
     elif action in save_inputs:
         save(player)
-    elif action in save_inputs:
-        player=load()
+    elif action in load_inputs:
+        global player=load()
         print('You have loaded {player.name}')
 def delve():
     stage=r.randint(0,100)
@@ -106,5 +107,8 @@ def shop():
 def healer():
     print('healer')
     #do later
+player=Player(input('What is your name, fellow adventurer?'),10,30,50)
+action=input(f'You now have {player.health} health points left. Would you like to delve'\
+'deeper in the dungeon, or go home? You can also choose to save by typing'\
+'{save_inputs} or load with {load_inputs}')
 menu()
-
