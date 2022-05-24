@@ -26,14 +26,15 @@ class Player:
 print('Welcome to the dungeon of rickrollia!')
 player=Player(input('What is your name, fellow adventurer?'),10,30,50)
 
-def save(obj,file):
+def save(obj):
     slot=input('what save slot would you like to use?')
+    save_file=1
     if slot==1:
-         save_file=Save1
+         save_file=Save_Files\Save1.pkl
     elif slot==2:
-         save_file=Save2
+         save_file=Save_Files\Save2.pkl
     elif slot == 3:
-         save_file=Save3
+         save_file=Save_Files\Save3.pkl
     p.dump( player, open( save_file, "wb" ) )
 
 def load(file):
@@ -55,7 +56,7 @@ def menu():
     elif action in home_inputs:
         home()
     elif action in save_inputs:
-        save
+        save(player)
 def delve():
     stage=r.randint(0,100)
     if stage<=90:
@@ -101,3 +102,4 @@ def healer():
     print('healer')
     #do later
 menu()
+
