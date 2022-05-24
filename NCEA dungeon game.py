@@ -6,14 +6,15 @@ delve_inputs=['yes','y','delve','d','deeper','deep']
 home_inputs = ['h','home','back','b']
 
 class Lv1_ennemies:
-    def __init__(self,name,damage,health):
+    def __init__(self,name,damage,max_health):
         self.name=name
         self.damage=damage
-        self.health=health
+        self.health=max_health
+        self.max_health=max_health
 
-goblin=Lv1_ennemies('goblin',5,10)
+goblin=Lv1_ennemies('goblin',5,20)
 bat=Lv1_ennemies('bat',1,1)
-skeleton=Lv1_ennemies('skeleton',8,5)
+skeleton=Lv1_ennemies('skeleton',8,10)
 
 class Player:
     def __init__(self,name,damage,health,money):
@@ -22,7 +23,11 @@ class Player:
         self.health=health
         self.money=money
 print('Welcome to the dungeon of rickrollia!')
-player=Player(input('What is your name, fellow adventurer?'),15,30,50)
+player=Player(input('What is your name, fellow adventurer?'),10,30,50)
+
+def game_over:
+    print('Game Over!')
+    #finish later
 
 def header():
     print('header')
@@ -30,7 +35,7 @@ def header():
 
 def menu():
     action=input(f'You now have {player.health} health points left. Would you like to delve'\
-          'deeper in the dungeon, or go home')
+          'deeper in the dungeon, or go home?')
     if action in delve_inputs:
         delve()
     elif action in home_inputs:
@@ -40,26 +45,39 @@ def delve():
     if stage<=90:
         monster=r.randint(1,3)
         if monster==1:
+            print(f'A wild {goblin.name} appears!')
             fight(goblin)
         elif monster==2:
+            print(f'A wild {bat.name} appears!')
             fight(bat)
         elif monster==3:
-            fight(skeleton)
+           print(f'A wild {skeleton.name} appears!')
+           fight(skeleton)
     elif stage<=95:
         shop()
     elif stage<=99:
         healer()
     else:
         print('You enter an empty room...')
-        menu(hp)
+        menu()
 def fight(monster):
-    player.health-=monster.damage
-    monster.health-=player.damage
-    damage=(monster.damage*r.randint(1,100)/100)+1
-    player_damage=(player.damage*r.randint(1,100)/100)+1
-    print(f'A wild {monster.name} appears!')
-    print(f'The {monster.name} deals you {damage}')
-    print(f'You retaliate, causing it {player_damage} damage! It now has {monster.health} hp left!')
+    damage=int(monster.damage*(r.randint(1,100)/100+1))
+    player_damage=int((player.damage*r.randint(1,100)/100)+1)
+    player.health-=damage
+    monster.health-=player_damage
+    print(f'The {monster.name} deals you {damage} damge')
+    if player.health<=0:
+        print('The {monster} kills you. This is the end of the tale of {player.name}')
+        game_over()
+    if monster.health>0:
+        print(f'You retaliate, causing it {player_damage} damage! It now has {monster.health} hp left!')
+        print(f'You have {player.health} hp left!')
+        input('Press [Enter] to continue')
+        fight(monster)
+    else:
+        print(f'The {monster.name} dies after you deal it {player_damage} damage')
+        monster.health=monster.max_health
+    menu()
 def shop():
     print('shop')
     #do later
