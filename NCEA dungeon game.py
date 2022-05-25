@@ -49,7 +49,7 @@ def menu():
         print(f'You have loaded {player.name}')
 def delve():
     stage=r.randint(0,100)
-    if stage<=90:
+    if stage<=9:
         monster=r.randint(1,3)
         if monster==1:
             print(f'A wild {goblin.name} appears!')
@@ -88,9 +88,19 @@ def fight(monster):
             monster.health=monster.max_health
             menu()
 def shop():
-    print('shop')
-    #do later
-    menu()
+    shopkeeper='jsidjf'
+    shop_id=r.randint(1,10)
+    with open('Stages\Shops.txt','r') as f:
+        shop_name=f.readline(shop_id)
+        print(shop_name)
+    print(f"welcome to {shopkeeper}'s{shop_name}. I am {shopkeeper}.")
+    print('this is what we have on sale')
+    with open('Stages\Shops.txt','r') as f:
+        items_on_sale[0]=f.readline(r.randint(1,10))
+        items_on_sale[1]=f.readline(r.randint(1,10))
+        items_on_sale[2]=f.readline(r.randint(1,10))
+    for i in range (1,len(items_on_sale)):
+        print(items_on_sale[i])
 def healer():
     print('healer')
     #do later
