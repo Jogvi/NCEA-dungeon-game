@@ -1,0 +1,19 @@
+Bank
+Inn
+Tavern
+Trinkets
+Potions
+Amulets
+Enchantments
+Armors & Weapons
+Bows & Arrows
+Forge
+Millicent
+Elizabeth
+Catherine
+Isolde
+Luanda
+Frederick
+Philip
+Matthew
+Rick
