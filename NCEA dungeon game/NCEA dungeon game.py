@@ -10,7 +10,13 @@ save_inputs= ['s','save']
 load_inputs=['l','load']
 
 stock_dict = {
-    4 : 'Stages\Trinkets_Stocks.txt'
+    4 : 'Stages\Stocks\Trinkets_stocks.txt',
+    5 : 'Stages\Stocks\Potions_stocks.txt',
+    6 : 'Stages\Stocks\Amulets_stocks.txt',
+    7 :'Stages\Stocks\Enchantments.txt',
+    8 : 'Stages\Stocks\Weaponsmith_stocks.txt',
+    9 : 'Stages\Stocks\Bows_&_arrows_stocks.txt',
+    10 : 'Stages\Stocks\Forge_stocks.txt',
     }
 
 def save(obj):
@@ -92,7 +98,7 @@ def fight(monster):
             menu()
 def shop():
     shopkeeper_id=r.randint(10,19)
-    shop_id=4 #r.randint(0,9)
+    shop_id=r.randint(0,9)
     with open('Stages\Shops.txt','r') as f:
         content=f.readlines()
         shop_name=content[shop_id-1].strip()
@@ -108,8 +114,8 @@ def shop():
     with open(shop_stock,'r') as f:
         content=f.readlines()
     items_on_sale=[]
-    for i in range (1,3):
-        items_on_sale.append(content[r.choice(content)])
+    for i in range (0,3):
+        items_on_sale.append(content[r.randint(0,len(content)-1)].strip())
     for i in range (0,len(items_on_sale)):
         print(items_on_sale[i])
 def healer():
