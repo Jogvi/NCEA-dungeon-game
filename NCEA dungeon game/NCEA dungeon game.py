@@ -9,18 +9,27 @@ home_inputs = ['h','home','back','b']
 save_inputs= ['s','save']
 load_inputs=['l','load']
 
+slot_dict={
+    1:'Save_Files\Save1.pkl',
+    2:'Save_Files\Save2.pkl',
+    3:'Save_Files\Save3.pkl'
+    }
 stock_dict = {
-    4 : 'Stages\Stocks\Trinkets_stocks.txt',
-    5 : 'Stages\Stocks\Potions_stocks.txt',
-    6 : 'Stages\Stocks\Amulets_stocks.txt',
-    7 :'Stages\Stocks\Enchantments.txt',
-    8 : 'Stages\Stocks\Weaponsmith_stocks.txt',
-    9 : 'Stages\Stocks\Bows_&_arrows_stocks.txt',
-    10 : 'Stages\Stocks\Forge_stocks.txt',
+    4 : 'Stages\Shop\Trinkets_stocks.txt',
+    5 : 'Stages\Shop\Potions_stocks.txt',
+    6 : 'Stages\Shop\Amulets_stocks.txt',
+    7 :'Stages\Shop\Enchantments_stocks.txt',
+    8 : 'Stages\Shop\Weaponsmith_stocks.txt',
+    9 : 'Stages\Shop\Bows_&_arrows_stocks.txt',
+    10 : 'Stages\Shop\Forge_stocks.txt',
     }
 
 def save(obj):
-    slot=input('what save slot would you like to use?')
+    try:
+        slot=int(input('what save slot would you like to use?'))
+    except ValueError:
+        print('Sorry, that is not a valid slot...')
+        save(obj)
     save_file='Save_Files\Save1.pkl'
     if slot=='1':
         save_file='Save_Files\Save1.pkl'
@@ -29,9 +38,10 @@ def save(obj):
     elif slot == '3':
         save_file='Save_Files\Save3.pkl'
     p.dump( obj, open( save_file, "wb" ) )
+    print(f'you have succesfully saved {obj.name} in slot {slot}!')
     
 def load():
-    slot=input('What slot would you like to load?')
+    slot=slot_dict[int(input('What slot would you like to load?'))]
     with open('Save_Files\Save1.pkl', 'rb') as data:
         obj = p.load(data)
     return obj
@@ -58,7 +68,7 @@ def menu():
     shop()
 def delve():
     stage=r.randint(0,100)
-    if stage<=9:
+    if stage<=900:
         monster=r.randint(1,3)
         if monster==1:
             print(f'A wild {goblin.name} appears!')
@@ -99,25 +109,31 @@ def fight(monster):
 def shop():
     shopkeeper_id=r.randint(10,19)
     shop_id=r.randint(0,9)
-    with open('Stages\Shops.txt','r') as f:
+    with open('Stages\Shop\Shops.txt','r') as f:
         content=f.readlines()
         shop_name=content[shop_id-1].strip()
         shopkeeper=content[shopkeeper_id].strip()
-    with open('Stages\Shop_Descriptions.txt','r') as f:
+    with open('Stages\Shop\Shop_Descriptions.txt','r') as f:
         content=f.readlines()
-        shop_description = content[shop_id]
+        shop_description = content[shop_id-1]
     print(f"welcome to {shopkeeper}'s {shop_name}. I am {shopkeeper}.")
     print(shop_description)   
-    if shop_id != 0 and shop_id!=1:
+    if shop_id > 3:
         print('this is what we have on sale')
-    shop_stock=stock_dict[shop_id]
-    with open(shop_stock,'r') as f:
-        content=f.readlines()
-    items_on_sale=[]
-    for i in range (0,3):
-        items_on_sale.append(content[r.randint(0,len(content)-1)].strip())
-    for i in range (0,len(items_on_sale)):
-        print(items_on_sale[i])
+        shop_stock=stock_dict[shop_id]
+        with open(shop_stock,'r') as f:
+            content=f.readlines()
+        items_on_sale=[]
+        for i in range (0,3):
+            items_on_sale.append(content[r.randint(0,len(content)-1)].strip())
+        for i in range (0,len(items_on_sale)):
+            print(items_on_sale[i])
+        action=input('would you like to buy something?')
+    else:
+        action=input('Would you like to use our services?')
+    if action in yes_inputs:
+        print('buy process strated')
+        menu()
 def healer():
     print('healer')
     #do later
@@ -160,4 +176,5 @@ print('Welcome to the dungeon of rickrollia!')
 player=Player(input('What is your name, fellow adventurer?'),15,50,50)
 
 menu()
+
 
