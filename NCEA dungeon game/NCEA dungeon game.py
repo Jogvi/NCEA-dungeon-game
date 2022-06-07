@@ -25,6 +25,7 @@ stock_dict = {
     9 : 'Stages\\Shop\\Bows_&_arrows_stocks.txt',
     10 : 'Stages\\Shop\\Forge_stocks.txt',
     }
+
 price_dict={
     'Small Amulet of strength' : 50,
     'Medium Amulet of strength'  :100,
@@ -36,8 +37,6 @@ price_dict={
     'Medium Amulet of Healing':200,
     'Large Amulet of Healing':200,
     }
-
-
 
 item_types={
     'Small Amulet of strength' :  5,
@@ -176,18 +175,18 @@ def equip_item(item):
                      'right wrist bracelet(1), a left wrist bracelet(2) or'\
                      'a necklace(3)?'))
         if action==1:
-            player.bracelet1=equipment_dict[item_bought]
+            player.bracelet1=equipment_dict[item]
             print(f"Your new right bracelet is a {player.bracelet1.name}")
         elif action==2:
-            player.bracelet2=equipment_dict[item_bought]
+            player.bracelet2=equipment_dict[item]
             print(f"Your new left bracelet is a {player.bracelet2.name}")
         elif action == 3:
-            player.necklace=equipment_dict[item_bought]
+            player.necklace=equipment_dict[item]
             print(f"Your new necklace is a {player.necklace.name}")
 
 def bank():
     if input('would you like to use our services?') in yes_inputs:
-        action = int(input('What would you like to do? (1:Deposit; 2:Withdrawal, 3:Change, 4:Borrow money'))
+        action = int(input('What would you like to do? (1:Deposit; 2:Withdrawal, 3:Borrow money'))
         if action==1:
             deposit_amount=int(input('How much would you like to deposit?'))
             if deposit_amount<= player.money:
@@ -201,8 +200,15 @@ def bank():
                 input('[Enter] to continue')
                 bank()
         elif action==2:
-            withdrawal_
-                
+             if player.money_bank ==0:
+                 print("You don't even have money here! Please deposit before you start withdrawing...")
+             withdrawal_amount=int(input("how much would you like to withdraw"))
+             if withdrawal_amount<=player.bank_money:
+                player.bank_money-=player.bank_money
+            else:
+                if player.bank_money>0:
+                    print(f'Sorry, your bank account only has {player.bank_money} ducats')
+                               
 
 def shop():
     shopkeeper_id=r.randint(10,19)
@@ -283,11 +289,19 @@ bat=Lv1_ennemies('bat',1,1,1)
 skeleton=Lv1_ennemies('skeleton',8,10,10)
 
 class Weapon:
-    def __init__(self,name,damage,solidity):
+    def __init__(self,name,damage,solidity, level):
         self.name=name
         self.damage=damage
         self.solidity=solidity
-basic_sword = Weapon('Basic Sword',15,50)
+        self.level = level
+basic_sword = Weapon('Basic Sword',15,50, 0)
+bronze_broadswoard = Weapon('Bronze Broadswoard' , 20,  100,1)
+silver_broadswoard = Weapon('Silver Broadswoard', 30, 150,1)
+gold_broadswoard = Weapon('Gold Broadswoard', 45, 80,2)
+platinum_broadswoard = Weapon('Platinum Broadswoard', 60 , 100,2)
+bronze_battleaxe = Weapon('Bronze Battleaxe', 30,  150, 2)
+silver_battleaxe = Weapon('Silver Battleaxe', 50, 200,2)
+
 
 class Amulet:
     def __init__(self,damage,defense,healing,name):
@@ -345,4 +359,3 @@ print('Welcome to the dungeon of rickrollia!')
 player=Player(input('What is your name, fellow adventurer?'),1,50,50)
 
 menu()
-
