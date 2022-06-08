@@ -301,7 +301,8 @@ gold_broadswoard = Weapon('Gold Broadswoard', 45, 80,2)
 platinum_broadswoard = Weapon('Platinum Broadswoard', 60 , 100,2)
 bronze_battleaxe = Weapon('Bronze Battleaxe', 30,  150, 2)
 silver_battleaxe = Weapon('Silver Battleaxe', 50, 200,2)
-
+gold_battleaxe = Weapon('Gold Battleaxe', 75, 100, 2)
+platinum_battleaxe = Weapon('Platinum Battleaxe',100,125,3)
 
 class Amulet:
     def __init__(self,damage,defense,healing,name):
