@@ -21,7 +21,7 @@ stock_dict = {
     5 : 'Stages\\Shop\\Potions_stocks.txt',
     6 : 'Stages\\Shop\\Amulets_stocks.txt',
     7 :'Stages\\Shop\\Enchantments_stocks.txt',
-    8 : 'Stages\\Shop\\Weaponsmith_stocks.txt',
+    8 : 'Stages\\Shop\\Armorsmith_stocks.txt',
     9 : 'Stages\\Shop\\Bows_&_arrows_stocks.txt',
     10 : 'Stages\\Shop\\Forge_stocks.txt',
     }
@@ -79,8 +79,9 @@ def header():
 
 def menu():
     global player
-    player.damage*=player.equipped_weapon.damage
-    player.total_armour_class=player.headwear+player.body_armour+player.pants+player.footwear
+    player.temp_damage = player.damage * player.equipped_weapon.damage
+    player.total_armour_class=player.headwear.armour+player.body_armour.armour\
+                               +player.pants.armour+player.footwear.armour
     action=input(f'You now have {player.health} health points left. Would you like to delve '\
           'deeper in the dungeon, or go home? You can also choose to save by '\
           f'typing "{save_inputs[0]}" or "{save_inputs[1]}"'\
@@ -99,7 +100,7 @@ def menu():
         menu()
 def delve():
     stage=r.randint(0,100)
-    if stage<=9:
+    if stage<=0:
         monster=r.randint(1,3)
         if monster==1:
             print(f'A wild {goblin.name} appears!')
@@ -120,7 +121,7 @@ def delve():
         
 def fight(monster):
     damage=int(monster.damage*(r.randint(1,100)/100+1))
-    player.temp_damage=int((player.damage*r.randint(1,100)/100)+1)
+    player.temp_damage=int((player.temp_damage*r.randint(1,150)/100)+1)
     player.health-=damage
     monster.health-=player.temp_damage
     print(f'The {monster.name} deals you {damage-player.total_armour_class} damage')
@@ -196,10 +197,10 @@ def bank():
         else:
             if player.bank_money>0:
                 print(f'Sorry, your bank account only has {player.bank_money} ducats')
-def object_to_title(item):
+def remove_charachter(item, remove):
     out = ""
     for i in range(0, len(item)): 
-        if item[i] != "_": 
+        if item[i] not in remove: 
             out = out + item[i]
         else:
             out = out + " "
@@ -209,7 +210,7 @@ def object_to_title(item):
 def shop():
     shopkeeper_id=r.randint(10,19)
     shop_id=r.randint(1,9)
-    shop_id=8
+    shop_id=10
     with open('Stages\\Shop\\Shops.txt','r') as f:
         content=f.readlines()
         shop_name=content[shop_id-1].strip()
@@ -226,14 +227,13 @@ def shop():
         shop_stock=stock_dict[shop_id]
         with open(shop_stock,'r') as f:
             content=f.readlines()
-        item_names=[]
-        for i in range (0, len(content)):
-            item_names.append(object_to_title(content[i]))
+
             
         items_on_sale=[]
         loop = 0
         while loop <3:
-            item = content[r.randint(0,len(content)-1)].strip()
+            #item = content[r.randint(0,len(content)-1)].strip()
+            item = content[r.randint(1,2)].strip()
             if eval(item).level<=player.level:
                 items_on_sale.append(item)
                 print(f'{loop+1}:{eval(item).name} : {eval(item).price}')
@@ -295,13 +295,36 @@ goblin=Lv1_ennemies('goblin',5,20,5)
 bat=Lv1_ennemies('bat',1,1,1)
 skeleton=Lv1_ennemies('skeleton',8,10,10)
 
-class Helmet:
-    def __intit__(self, name, armour, solidity, level):
-        self.name=name
-        self.armour=armour
-        self.solidity=solidity
+class Armour:
+    def __init__(self, name, armour, solidity, level, item_type, price):
+        self.name = name
+        self.armour = armour
+        self.solidity = solidity
         self.level = level
-        self.type = 1
+        self.type = item_type
+        self.price = price
+null_armour = Armour("nothing", 0, 0, 0, 0, 0)
+sweaty_underpants = Armour("Sweaty Underpants", 1, 69, 0, 3,1)
+bucket = Armour("Bucket", 3,50,0,1,35)
+leather_breastplate = Armour("Leather Breastplate", 5, 100, 1, 2,50)
+leather_pants = Armour("Leather Pants", 5, 90, 1, 3, 40)
+#leather_boots
+#bronze_helm
+#bronze_breastplate
+#bronze_pants
+#bronze_boots
+#silver_helm
+#silver_breastplate
+#silver_pants
+#silver_boots
+#gold_helm
+#gold_breastplate
+#gold_pants
+#gold_boots
+#platinum_helm
+#platinum_breastplate
+#platinum_pants
+#platinum_boots
 
 class Weapon:
     def __init__(self,name,damage,solidity, level,price):
@@ -369,10 +392,10 @@ class Player:
         self.health=health
         self.money=money
         self.score=0
-        self.headwear=0
-        self.body_armour=0
-        self.pants=0
-        self.footwear=0
+        self.headwear=null_armour
+        self.body_armour=null_armour
+        self.pants=null_armour
+        self.footwear=null_armour
         self.total_armour_class=0
         self.backpack=[]
         self.bracelet1=null_amulet
@@ -388,5 +411,8 @@ print('Welcome to the dungeon of rickrollia!')
 player=Player(input('What is your name, fellow adventurer?').title().lstrip(),1,50,350)
 
 menu()
+
+
+
 
 
