@@ -100,7 +100,7 @@ def menu():
         menu()
 def delve():
     stage=r.randint(0,100)
-    if stage<=0:
+    if stage<=90:
         monster=r.randint(1,3)
         if monster==1:
             print(f'A wild {goblin.name} appears!')
