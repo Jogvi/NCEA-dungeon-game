@@ -78,9 +78,9 @@ def header():
 def menu():
     global player
     player.temp_damage = player.damage * player.equipped_weapon.damage
-    player.total_armour_class=player.headwear.armour+player.body_armour.armour\
-                               +player.pants.armour+player.footwear.armour\
-    action=input(f'You now have {player.health} health points left. Would you like to delve '\
+    player.total_armour_class = player.headwear.armour+player.body_armour.armour\
+                               +player.pants.armour+player.footwear.armour
+    action = input(f'You now have {player.health} health points left. Would you like to delve '\
           'deeper in the dungeon, or go home? You can also choose to save by '\
           f'typing "{save_inputs[0]}" or "{save_inputs[1]}"'\
           f'and load with "{load_inputs[0]}" or "{load_inputs[1]}" \n')
@@ -157,9 +157,23 @@ def equip_item(item):
         player.footwear = item
         menu()
     elif item.type==5:
-        action=int(input(f'Would you like to equip your {item.name} as a '\
-                     'right wrist bracelet(1), a left wrist bracelet(2) or'\
-                     'a necklace(3)?'))
+        try:
+            action=int(input(f'Would you like to equip your {item.name} as a '\
+                         'right wrist bracelet(1), a left wrist bracelet(2) or'\
+                         'a necklace(3)?'))
+            if action>3:
+                raise ValueError
+        except ValueError:
+            if player.bracelet1== null_amulet:
+                equip_spot = "right bracelet"
+                player.bracelet1 = item
+            elif player.bracelet2== null_amulet:
+                equip_spot = "left bracelet"
+                player.bracelet2 = item
+            elif player.necklace== null_amulet:
+                equip_spot = "necklace"
+                player.necklace = item
+            print(f'oops. your bracelet will be equipped as a{equip_spot}')
         if action==1:
             player.bracelet1=item
             print(f"Your new right bracelet is a {player.bracelet1.name}")
@@ -230,8 +244,7 @@ def shop():
         items_on_sale=[]
         loop = 0
         while loop <3:
-            #item = content[r.randint(0,len(content)-1)].strip()
-            item = content[r.randint(1,2)].strip()
+            item = content[r.randint(0,len(content)-1)].strip()
             if eval(item).level<=player.level:
                 items_on_sale.append(item)
                 print(f'{loop+1}:{eval(item).name} : {eval(item).price}')
@@ -239,9 +252,16 @@ def shop():
         action=input('Would you like to buy something?You currently have '\
                      f'{player.money} Ducats \n')
         if action in yes_inputs:
-            action=int(input('What would you like to buy? (1,2 or 3)\n'))
-            global item_bought
-            item = eval(item)
+            good = False
+            while not good:
+                action=int(input('What would you like to buy? (1,2 or 3)\n'))
+                global item_bought
+                try:
+                    item = items_on_sale[action-1]
+                    good = True
+                except IndexError:
+                    print('oops')
+            item = eval(item_bought)
             if item.price <= player.money:
                 player.money-=item.price
                 action=input(f'Do you want to equip your new {item.name}? \n')
@@ -410,6 +430,7 @@ print('Welcome to the dungeon of rickrollia!')
 player=Player(input('What is your name, fellow adventurer?').title().lstrip(),1,50,350)
 
 menu()
+
 
 
 
