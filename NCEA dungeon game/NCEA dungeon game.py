@@ -17,13 +17,11 @@ slot_dict={
     3:'Save_Files\\Save3.pkl'
     }
 stock_dict = {
-    4 : 'Stages\\Shop\\Trinkets_stocks.txt',
-    5 : 'Stages\\Shop\\Potions_stocks.txt',
-    6 : 'Stages\\Shop\\Amulets_stocks.txt',
-    7 :'Stages\\Shop\\Enchantments_stocks.txt',
-    8 : 'Stages\\Shop\\Armorsmith_stocks.txt',
+    5 : 'Stages\\Shop\\Trinkets_stocks.txt',
+    6 : 'Stages\\Shop\\Potions_stocks.txt',
+    7 : 'Stages\\Shop\\Amulets_stocks.txt',
+    8 :'Stages\\Shop\\Enchantments_stocks.txt',
     9 : 'Stages\\Shop\\Bows_&_arrows_stocks.txt',
-    10 : 'Stages\\Shop\\Forge_stocks.txt',
     }
 
 item_types={
@@ -81,7 +79,7 @@ def menu():
     global player
     player.temp_damage = player.damage * player.equipped_weapon.damage
     player.total_armour_class=player.headwear.armour+player.body_armour.armour\
-                               +player.pants.armour+player.footwear.armour
+                               +player.pants.armour+player.footwear.armour\
     action=input(f'You now have {player.health} health points left. Would you like to delve '\
           'deeper in the dungeon, or go home? You can also choose to save by '\
           f'typing "{save_inputs[0]}" or "{save_inputs[1]}"'\
@@ -100,7 +98,7 @@ def menu():
         menu()
 def delve():
     stage=r.randint(0,100)
-    if stage<=90:
+    if stage<=0:
         monster=r.randint(1,3)
         if monster==1:
             print(f'A wild {goblin.name} appears!')
@@ -210,7 +208,7 @@ def remove_charachter(item, remove):
 def shop():
     shopkeeper_id=r.randint(10,19)
     shop_id=r.randint(1,9)
-    shop_id=10
+    shop_id=7
     with open('Stages\\Shop\\Shops.txt','r') as f:
         content=f.readlines()
         shop_name=content[shop_id-1].strip()
@@ -352,6 +350,7 @@ class Amulet:
         self.price = price
         self.name=name
         self.type = 5
+        self.level = 0
 
 null_amulet=Amulet(0,0,0,'nothing',0)
 small_amulet_strength=Amulet(3,0,0,'Small Amulet of Strength',50)
@@ -411,7 +410,6 @@ print('Welcome to the dungeon of rickrollia!')
 player=Player(input('What is your name, fellow adventurer?').title().lstrip(),1,50,350)
 
 menu()
-
 
 
 

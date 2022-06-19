@@ -1,10 +1,8 @@
-Shortbow
-Bow
-Longbow
-10 arrows
-50 arrows
-100 arrows
-Small quiver
-Medium quiver
-Large quiver
-5 Fire Arrows
+shortbow
+bow
+longbow
+arrows
+small_quiver
+medium_quiver
+large_quiver
+fire_arrows

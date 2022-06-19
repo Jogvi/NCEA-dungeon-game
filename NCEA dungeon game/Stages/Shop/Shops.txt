@@ -1,13 +1,13 @@
 Bank
 Inn
 Tavern
+Forge
 Trinkets
 Potions
 Amulets
 Enchantments
 Armors & Weapons
 Bows & Arrows
-Forge
 Millicent
 Elizabeth
 Catherine
