@@ -1,5 +1,5 @@
-import random as r
 import pickle as p
+import random as r
 import webbrowser as w
 
 yes_inputs = ['yes', 'y', 'yea', 'yeah', 'yep', 'yesaroo']
@@ -9,6 +9,7 @@ home_inputs = ['h', 'home', 'back', 'b']
 save_inputs = ['s', 'save']
 load_inputs = ['l', 'load']
 equipable = [1, 2, 3, 4, 5]
+potion_pouch = []
 
 item_bought = ''
 
@@ -25,7 +26,7 @@ stock_dict = {
     9: 'Stages\\Shop\\Bows_&_arrows_stocks.txt',
 }
 
-w.open('https://www.youtube.com/watch?v=xvFZjo5PgG0')
+# w.open('https://www.youtube.com/watch?v=xvFZjo5PgG0')
 
 item_types = {
     'Shortbow': 6,
@@ -39,6 +40,7 @@ item_types = {
     'Medium quiver': 8,
     'Large quiver': 8,
 }
+
 
 def save_game():
     try:
@@ -77,6 +79,7 @@ def load_game():
 
 def home():
     print('end of the game')
+    game_over()
 
 
 def header():
@@ -84,14 +87,36 @@ def header():
     # do later
 
 
+def level_up():
+    print('Level UP!')
+    try:
+        action = int(input("Would you like to raise your max health(0) or your strength(1)?"))
+        if action > 1:
+            raise ValueError
+    except ValueError:
+        print("Oops... Let's try again")
+        level_up()
+    if action == 0:
+        print(f'Your max health has raised from {player.mhealth} to {int(player.mhealth * 1.1)}')
+        player.mhealth = int(player.mhealth * 1.1)
+    elif action == 1:
+        print(f'Your strength has raised from {round(player.damage, 4)} to {round(player.damage * 1.1, 4)}')
+        player.damage *= 1.1
+    player.health = player.mhealth
+    print(f"You feel refreshed... You've healed beck to your max, {player.mhealth} health points")
+    player.level += 1
+    menu()
+
+
 def menu():
     global player
-    if player.xp >= player.level*50:
-        print('wkgsukd')
+    player.invincibility -= 1
+    if player.xp >= player.level * 50:
+        level_up()
     player.temp_damage = player.damage * player.equipped_weapon.damage
-    player.total_armour_class = player.headwear.armour + player.body_armour.armour\
+    player.total_armour_class = player.headwear.armour + player.body_armour.armour \
                                 + player.pants.armour + player.footwear.armour
-    action = input(f'You now have {player.health} health points left. Would you like to delve '
+    action = input(f'You have {player.health} health points left. Would you like to delve '
                    'deeper in the dungeon, or go home? You can also choose to save by '
                    f'typing "{save_inputs[0]}" or "{save_inputs[1]}"'
                    f'and load with "{load_inputs[0]}" or "{load_inputs[1]}" \n')
@@ -112,16 +137,16 @@ def menu():
 def delve():
     stage = r.randint(0, 100)
     if stage <= 0:
-        monster = r.randint(1, 3)
-        if monster == 1:
-            print(f'A wild {goblin.name} appears!')
-            fight(goblin)
-        elif monster == 2:
-            print(f'A wild {bat.name} appears!')
-            fight(bat)
-        elif monster == 3:
-            print(f'A wild {skeleton.name} appears!')
-            fight(skeleton)
+        while monster.level > player.level:
+            monster = r.choice(monsters)
+        if monster.level == 1:
+            print(f'A wild {monster.name} appears!')
+        elif monster.level == 2:
+            print(f'A scary {monster.name} appears!')
+        elif monster.level == 3:
+            print(f'A menacing {monster.name} appears!')
+        elif monster.level == 4:
+            print(f'A terrifying {monster.name} appears!')
     elif stage <= 95:
         shop()
     elif stage <= 99:
@@ -131,28 +156,51 @@ def delve():
         menu()
 
 
+def ask_potion(monster):
+    action = input('Would you like to use a potion?')
+    if action in delve_inputs:
+        for i in range(len(player.backpack)):
+            if player.backpack[i] == Potion:
+                potion_pouch.append(player.backpack[i])
+                for a in range(len(potion_pouch)):
+                    print('1:', potion_pouch[a])
+                try:
+                    action = int(input('What potion would you like to use?'))
+                    if action >= len(potion_pouch):
+                        raise ValueError
+                except ValueError:
+                    print("Oops")
+                    ask_potion(monster)
+                potion_pouch[action].use(monster)
+
+
 def fight(monster):
     damage = int(monster.damage * (r.randint(1, 100) / 100 + 1))
-    player.temp_damage = int((player.temp_damage * r.randint(1, 150) / 100) + 1)
-    player.health -= damage
-    monster.health -= player.temp_damage
+    player_damage = int((player.temp_damage * r.randint(1, 150) / 100) + 1)
+    if player.invincibility <= 0:
+        player.health -= damage
+    monster.health -= player_damage
     print(f'The {monster.name} deals you {damage - player.total_armour_class} damage')
     if player.health <= 0:
         print(f'The {monster.name} kills you. This is the end of the tale of {player.name}')
         game_over()
     else:
         if monster.health > 0:
-            print(f'You retaliate, causing it {player.temp_damage} damage! It now has {monster.health} hp left!')
+            ask_potion(monster)
+
+            print(f'You retaliate, causing it {player_damage} damage! It now has {monster.health} hp left!')
             print(f'You have {player.health} hp left!')
             input('Press [Enter] to continue')
             fight(monster)
         else:
-            print(f'The {monster.name} dies after you deal it {player.temp_damage} damage')
+            print(f'The {monster.name} dies after you deal it {player_damage} damage')
             player.score += monster.level
             monster.health = monster.max_health
             player.money += monster.money
-            if monster.level == 1:
-                print(f'The {monster.name} dropped {monster.money} copper pieces')
+            player.xp += monster.xp_given
+            print(f'The {monster.name} dropped {monster.money} Ducats and {monster.xp_given} xp')
+            if player.xp < player.level * 50:
+                print(f'You now have {player.xp} xp, and need {player.level * 50} to level up.')
             menu()
 
 
@@ -228,7 +276,6 @@ def remove_character(item, remove):
 def shop():
     shopkeeper_id = r.randint(10, 19)
     shop_id = r.randint(1, 9)
-    shop_id = 7
     with open('Stages\\Shop\\Shops.txt', 'r') as f:
         content = f.readlines()
         shop_name = content[shop_id - 1].strip()
@@ -240,7 +287,7 @@ def shop():
     print(shop_description)
     input('Press [Enter] to continue')
     # if shop is inferior to 3 it is a service
-    if shop_id > 3:
+    if shop_id > 4:
         print('this is what we have on sale')
         shop_stock = stock_dict[shop_id]
         with open(shop_stock, 'r') as f:
@@ -260,7 +307,7 @@ def shop():
         if action in yes_inputs:
             action = int(input('What would you like to buy? (1,2 or 3)\n'))
             global item_bought
-            item = items_on_sale[action-1]
+            item = items_on_sale[action - 1]
             item = eval(item)
             if item.price <= player.money:
                 player.money -= item.price
@@ -283,6 +330,8 @@ def shop():
         if action in yes_inputs:
             print('Services will be available soon')
             menu()
+        else:
+            menu()
 
 
 def healer():
@@ -304,20 +353,24 @@ def game_over():
             f.write(player.name.strip())
 
 
-class Lv1_Enemies:
-    def __init__(self, name, damage, max_health, money, xp):
+class Enemies:
+    def __init__(self, name, damage, max_health, money, xp, level):
         self.name = name
         self.damage = damage
         self.health = max_health
         self.max_health = max_health
-        self.level = 1
+        self.level = level
         self.money = money
         self.xp_given = xp
 
 
-goblin = Lv1_Enemies('goblin', 5, 20, 5, 10)
-bat = Lv1_Enemies('bat', 1, 1, 1, 1)
-skeleton = Lv1_Enemies('skeleton', 8, 10, 10, 5)
+null_monster = Enemies('', 0, 0, 0, 0, 99)
+goblin = Enemies('goblin', 5, 20, 5, 10, 1)
+bat = Enemies('bat', 1, 1, 1, 1, 1)
+skeleton = Enemies('skeleton', 8, 10, 10, 5, 1)
+ogre = Enemies('Ogre', 30, 5, 20, 15, 2)
+
+monsters = [goblin, skeleton, bat]
 
 
 class Armour:
@@ -330,7 +383,7 @@ class Armour:
         self.price = price
 
 
-null_armour = Armour("nothing", 0, 0, 0, 0, 0)
+no_armour = Armour("nothing", 0, 0, 0, 0, 0)
 sweaty_underpants = Armour("Sweaty Underpants", 1, 69, 0, 3, 1)
 bucket = Armour("Bucket", 3, 50, 0, 1, 35)
 leather_breastplate = Armour("Leather Breastplate", 5, 100, 1, 2, 50)
@@ -341,17 +394,18 @@ bronze_breastplate = Armour('Bronze Breastplate', 10, 100, 1, 2, 150)
 bronze_pants = Armour('Bronze Pants', 8, 100, 1, 3, 125)
 bronze_boots = Armour('Bronze Boots', 8, 90, 1, 4, 115)
 silver_helm = Armour('Silver Helmet', 13, 125, 2, 1, 200)
-silver_breastplate
-silver_pants
-silver_boots
-gold_helm
-gold_breastplate
-gold_pants
-gold_boots
-platinum_helm
-platinum_breastplate
-platinum_pants
-platinum_boots
+silver_breastplate = Armour('Silver Breastplate', 15, 100, 2, 2, 215)
+silver_pants = Armour('Silver Pants', 14, 115, 2, 3, 210)
+silver_boots = Armour('Silver Boots', 12, 150, 2, 4, 195)
+gold_helm = Armour('Gold Helmet', 17, 90, 3, 1, 300)
+gold_breastplate = Armour('Gold Breastplate', 20, 100, 3, 2, 350)
+gold_pants = Armour('Gold Pants', 18, 100, 3, 3, 325)
+gold_boots = Armour('Gold Boots', 17, 150, 3, 4, 300)
+platinum_helm = Armour('Platinum Helmet', 23, 120, 4, 1, 475)
+platinum_breastplate = Armour('Platinum Breastplate', 25, 100, 4, 2, 500)
+platinum_pants = Armour('Platinum Pants', 24, 110, 4, 3, 495)
+platinum_boots = Armour('Platinum Boots', 22, 150, 4, 4, 485)
+
 
 class Weapon:
     def __init__(self, name, damage, solidity, level, price):
@@ -396,7 +450,7 @@ small_amulet_healing = Amulet(0, 0, 3, 'Small Amulet of Healing', 50)
 medium_amulet_healing = Amulet(0, 0, 5, 'Medium Amulet of Healing', 100)
 large_amulet_healing = Amulet(0, 0, 8, 'Large Amulet of Healing', 200)
 
-# Dictionary is here because otherwhise the objects are undefined
+# Dictionary is here because otherwise the objects are undefined
 equipment_dict = {
     'Small Amulet of strength': small_amulet_strength,
     'Medium Amulet of strength': medium_amulet_strength,
@@ -418,17 +472,59 @@ equipment_dict = {
 }
 
 
+class Potion:
+
+    def __init__(self, name, effect, intensity, price):
+        self.name = name
+        self.effect = effect
+        self.intensity = intensity
+        self.level = 0
+        self.price = price
+
+    def use(self, target):
+        print(f'You use your {self.name}')
+        if self.effect == 0:
+            player.health += 5 * self.intensity
+            print(f'The {self.name} heals you {5 * self.intensity}')
+        elif self.effect == 1:
+            target.poison += self.intensity * 3
+        elif self.effect == 2:
+            target.health -= 5 * self.intensity
+        elif self.effect == 3:
+            target.strength -= self.intensity * 3
+        else:
+            player.invincibility = 1
+
+
+small_potion_healing = Potion("Small Potion of Healing", 0, 1)
+medium_potion_healing = Potion('Medium Potion of Healing', 0, 2)
+large_potion_healing = Potion('Large Potion of Healing', 0, 3)
+small_potion_poison = Potion('Small Potion of Poison', 1, 1)
+medium_potion_poison = Potion('Medium Potion of Poison', 1, 2)
+large_potion_poison = Potion('Large Potion of Poison', 1, 3)
+small_potion_damage = Potion('Small Potion of Instant Damage', 2, 1)
+medium_potion_damage = Potion('Medium Potion of Instant Damage', 2, 2)
+large_potion_damage = Potion('Large Potion of Instant Damage', 2, 3)
+small_potion_weakness = Potion('Small Potion of Weakness', 3, 1)
+medium_potion_weakness = Potion('Medium Potion of Weakness', 3, 2)
+large_potion_weakness = Potion('Large Potion of Weakness', 3, 3)
+small_invincibility_potion = Potion('Small Potion of Invincibility', 4, 1)
+medium_invincibility_potion = Potion('Medium Potion of Invincibility', 4, 2)
+large_invincibility_potion = Potion('Large Potion of Invincibility', 4, 3)
+
+
 class Player:
-    def __init__(self, name, damage, health, money):
+    def __init__(self, name, damage, mhealth, money):
         self.name = name
         self.damage = damage
-        self.health = health
+        self.mhealth = mhealth
+        self.health = mhealth
         self.money = money
         self.score = 0
-        self.headwear = null_armour
-        self.body_armour = null_armour
-        self.pants = null_armour
-        self.footwear = null_armour
+        self.headwear = no_armour
+        self.body_armour = no_armour
+        self.pants = no_armour
+        self.footwear = no_armour
         self.total_armour_class = 0
         self.backpack = []
         self.bracelet1 = null_amulet
@@ -439,9 +535,11 @@ class Player:
         self.temp_damage = damage * self.equipped_weapon.damage
         self.bank_money = 0
         self.level = 1
+        self.xp = 0
+        self.invincibility = 0
 
 
 print('Welcome to the dungeon of rickrollia!')
-player = Player(input('What is your name, fellow adventurer?').title().lstrip(), 1, 50, 350)
+player = Player(input('What is your name, fellow adventurer?').title().lstrip(), 1, 500, 350)
 
 menu()
