@@ -275,7 +275,8 @@ def remove_character(item, remove):
 
 def shop():
     shopkeeper_id = r.randint(10, 19)
-    shop_id = r.randint(1, 9)
+    #shop_id = r.randint(1, 9)
+    shop_id = 6
     with open('Stages\\Shop\\Shops.txt', 'r') as f:
         content = f.readlines()
         shop_name = content[shop_id - 1].strip()
@@ -381,6 +382,7 @@ class Armour:
         self.level = level
         self.type = item_type
         self.price = price
+        self.equippable = True
 
 
 no_armour = Armour("nothing", 0, 0, 0, 0, 0)
@@ -415,6 +417,7 @@ class Weapon:
         self.level = level
         self.type = 0
         self.price = price
+        self.equippable = True
 
 
 basic_sword = Weapon('Basic Sword', 15, 50, 0, 0)
@@ -437,6 +440,7 @@ class Amulet:
         self.name = name
         self.type = 5
         self.level = 0
+        self.equippable = True
 
 
 null_amulet = Amulet(0, 0, 0, 'nothing', 0)
@@ -474,12 +478,13 @@ equipment_dict = {
 
 class Potion:
 
-    def __init__(self, name, effect, intensity, price):
+    def __init__(self, name, effect, intensity):
         self.name = name
         self.effect = effect
         self.intensity = intensity
         self.level = 0
-        self.price = price
+        self.price = intensity * 25
+        self.equippable = False
 
     def use(self, target):
         print(f'You use your {self.name}')
@@ -496,7 +501,7 @@ class Potion:
             player.invincibility = 1
 
 
-small_potion_healing = Potion("Small Potion of Healing", 0, 1)
+small_potion_healing = Potion("Small Potion of Healing", 0, 1,)
 medium_potion_healing = Potion('Medium Potion of Healing', 0, 2)
 large_potion_healing = Potion('Large Potion of Healing', 0, 3)
 small_potion_poison = Potion('Small Potion of Poison', 1, 1)
