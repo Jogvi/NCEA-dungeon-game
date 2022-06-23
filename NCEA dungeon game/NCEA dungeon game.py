@@ -107,15 +107,21 @@ def level_up():
     player.level += 1
     menu()
 
-
-def menu():
-    global player
+def menu_init():
     player.invincibility -= 1
     if player.xp >= player.level * 50:
         level_up()
     player.temp_damage = player.damage * player.equipped_weapon.damage
     player.total_armour_class = player.headwear.armour + player.body_armour.armour \
                                 + player.pants.armour + player.footwear.armour
+    for i in player.backpack:
+        if i.level == 0:
+            player.potion_pouch.append(i)
+            player.backpack.remove(i)
+
+def menu():
+    global player
+    menu_init()
     action = input(f'You have {player.health} health points left. Would you like to delve '
                    'deeper in the dungeon, or go home? You can also choose to save by '
                    f'typing "{save_inputs[0]}" or "{save_inputs[1]}"'
@@ -136,9 +142,11 @@ def menu():
 
 def delve():
     stage = r.randint(0, 100)
-    if stage <= 0:
-        while monster.level > player.level:
+    if stage <= 900:
+        while True:
             monster = r.choice(monsters)
+            if monster.level <= player.level:
+                break
         if monster.level == 1:
             print(f'A wild {monster.name} appears!')
         elif monster.level == 2:
@@ -147,6 +155,7 @@ def delve():
             print(f'A menacing {monster.name} appears!')
         elif monster.level == 4:
             print(f'A terrifying {monster.name} appears!')
+        fight(monster)
     elif stage <= 95:
         shop()
     elif stage <= 99:
@@ -158,20 +167,17 @@ def delve():
 
 def ask_potion(monster):
     action = input('Would you like to use a potion?')
-    if action in delve_inputs:
-        for i in range(len(player.backpack)):
-            if player.backpack[i] == Potion:
-                potion_pouch.append(player.backpack[i])
-                for a in range(len(potion_pouch)):
-                    print('1:', potion_pouch[a])
-                try:
-                    action = int(input('What potion would you like to use?'))
-                    if action >= len(potion_pouch):
-                        raise ValueError
-                except ValueError:
-                    print("Oops")
-                    ask_potion(monster)
-                potion_pouch[action].use(monster)
+    if action in yes_inputs:
+        for a in range(len(potion_pouch)):
+            print('1:', potion_pouch[a])
+            try:
+                action = int(input('What potion would you like to use?'))
+                if action >= len(potion_pouch):
+                    raise ValueError
+            except ValueError:
+                print("Oops")
+                ask_potion(monster)
+            potion_pouch[action].use(monster)
 
 
 def fight(monster):
@@ -298,7 +304,7 @@ def shop():
         loop = 0
         while loop < 3:
             # item = content[r.randint(0,len(content)-1)].strip()
-            item = content[r.randint(1, 2)].strip()
+            item = content[r.randint(0, len(content)-1)].strip()
             if eval(item).level <= player.level:
                 items_on_sale.append(item)
                 print(f'{loop + 1}:{eval(item).name} : {eval(item).price}')
@@ -312,19 +318,21 @@ def shop():
             item = eval(item)
             if item.price <= player.money:
                 player.money -= item.price
-                action = input(f'Do you want to equip your new {item.name}? \n')
-                if action in yes_inputs:
-                    equip_item(item)
-                elif action in no_inputs:
-                    player.backpack.append(item)
-                else:
-                    print("I think you've misspelled your input")
+                if item.equippable:
+                    action = input(f'Do you want to equip your new {item.name}? \n')
+                    if action in yes_inputs:
+                        equip_item(item)
+                    elif action in no_inputs:
+                        player.backpack.append(item)
+                    else:
+                        print("I think you've misspelled your input")
+                
             else:
                 print('sorry, you dont have enough money...')
                 shop()
         else:
             print('See you soon!')
-            menu()
+        menu()
     else:
         action = input('Would you like to use our services?'
                        f'You currently have {player.money} Ducats \n')
@@ -531,7 +539,7 @@ class Player:
         self.pants = no_armour
         self.footwear = no_armour
         self.total_armour_class = 0
-        self.backpack = []
+        self.backpack = [small_potion_healing]
         self.bracelet1 = null_amulet
         self.bracelet2 = null_amulet
         self.necklace = null_amulet
@@ -542,6 +550,7 @@ class Player:
         self.level = 1
         self.xp = 0
         self.invincibility = 0
+        self.potion_pouch = []
 
 
 print('Welcome to the dungeon of rickrollia!')
