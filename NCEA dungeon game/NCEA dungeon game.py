@@ -1,6 +1,7 @@
 import pickle as p
 import random as r
 import webbrowser as w
+import time as t
 
 yes_inputs = ['yes', 'y', 'yea', 'yeah', 'yep', 'yesaroo']
 no_inputs = ['no', 'n', 'nope', 'back', 'b', 'cancel', 'c']
@@ -108,24 +109,25 @@ def level_up():
     menu()
 
 def menu_init():
-    player.invincibility -= 1
+    if player.invincibility > 0:
+        player.invincibility -= 1
     if player.xp >= player.level * 50:
         level_up()
     player.temp_damage = player.damage * player.equipped_weapon.damage
     player.total_armour_class = player.headwear.armour + player.body_armour.armour \
                                 + player.pants.armour + player.footwear.armour
-    for i in player.backpack:
-        if i.level == 0:
-            player.potion_pouch.append(i)
-            player.backpack.remove(i)
+    
 
 def menu():
     global player
     menu_init()
-    action = input(f'You have {player.health} health points left. Would you like to delve '
+    print(f'You have {player.health} health points left. Would you like to delve '
                    'deeper in the dungeon, or go home? You can also choose to save by '
                    f'typing "{save_inputs[0]}" or "{save_inputs[1]}"'
                    f'and load with "{load_inputs[0]}" or "{load_inputs[1]}" \n')
+    t.sleep(1)
+    action = input()
+
     if action in delve_inputs:
         delve()
     elif action in home_inputs:
@@ -166,27 +168,33 @@ def delve():
 
 
 def ask_potion(monster):
+    useable_potions = []
     action = input('Would you like to use a potion?')
     if action in yes_inputs:
-        for a in range(len(potion_pouch)):
-            print('1:', potion_pouch[a])
+        for i in player.backpack:
+            if i.level == 0:
+                useable_potions.append(i)
+        for a in range(len(useable_potions)):
+            print('1:', useable_potions[a].name)
             try:
-                action = int(input('What potion would you like to use?'))
-                if action >= len(potion_pouch):
+                action = int(input('What potion would you like to use?'))-1
+                if action >= len(useable_potions):
                     raise ValueError
             except ValueError:
                 print("Oops")
                 ask_potion(monster)
-            potion_pouch[action].use(monster)
+            useable_potions[action].use(monster)
 
 
 def fight(monster):
     damage = int(monster.damage * (r.randint(1, 100) / 100 + 1))
     player_damage = int((player.temp_damage * r.randint(1, 150) / 100) + 1)
-    if player.invincibility <= 0:
+    if player.invincibility <= 0 and damage > 0:
         player.health -= damage
+        print(f'The {monster.name} deals you {damage - player.total_armour_class} damage')
+    elif damage <= 0:
+        print(f'The {monster.name} weakly throws his arms, but it is not enough to harm you')
     monster.health -= player_damage
-    print(f'The {monster.name} deals you {damage - player.total_armour_class} damage')
     if player.health <= 0:
         print(f'The {monster.name} kills you. This is the end of the tale of {player.name}')
         game_over()
@@ -291,6 +299,7 @@ def shop():
         content = f.readlines()
         shop_description = content[shop_id - 1]
     print(f"welcome to {shopkeeper}'s {shop_name}. I am {shopkeeper}.")
+    t.sleep(1)
     print(shop_description)
     input('Press [Enter] to continue')
     # if shop is inferior to 3 it is a service
@@ -303,15 +312,16 @@ def shop():
         items_on_sale = []
         loop = 0
         while loop < 3:
-            # item = content[r.randint(0,len(content)-1)].strip()
             item = content[r.randint(0, len(content)-1)].strip()
             if eval(item).level <= player.level:
                 items_on_sale.append(item)
                 print(f'{loop + 1}:{eval(item).name} : {eval(item).price}')
                 loop += 1
+                t.sleep(0.3)
         action = input('Would you like to buy something?You currently have '
                        f'{player.money} Ducats \n')
         if action in yes_inputs:
+            t.sleep(0.2)
             action = int(input('What would you like to buy? (1,2 or 3)\n'))
             global item_bought
             item = items_on_sale[action - 1]
@@ -321,6 +331,7 @@ def shop():
                 if item.equippable:
                     action = input(f'Do you want to equip your new {item.name}? \n')
                     if action in yes_inputs:
+                        t.sleep(0.5)
                         equip_item(item)
                     elif action in no_inputs:
                         player.backpack.append(item)
@@ -329,6 +340,7 @@ def shop():
                 
             else:
                 print('sorry, you dont have enough money...')
+                t.sleep(2)
                 shop()
         else:
             print('See you soon!')
@@ -374,10 +386,10 @@ class Enemies:
 
 
 null_monster = Enemies('', 0, 0, 0, 0, 99)
-goblin = Enemies('goblin', 5, 20, 5, 10, 1)
-bat = Enemies('bat', 1, 1, 1, 1, 1)
-skeleton = Enemies('skeleton', 8, 10, 10, 5, 1)
-ogre = Enemies('Ogre', 30, 5, 20, 15, 2)
+goblin = Enemies('goblin', 5, 200, 5, 10, 1)
+bat = Enemies('bat', 1, 1, 100, 1, 1)
+skeleton = Enemies('skeleton', 8, 100, 10, 5, 1)
+ogre = Enemies('Ogre', 30, 500, 20, 15, 2)
 
 monsters = [goblin, skeleton, bat]
 
@@ -504,9 +516,10 @@ class Potion:
         elif self.effect == 2:
             target.health -= 5 * self.intensity
         elif self.effect == 3:
-            target.strength -= self.intensity * 3
+            target.damage -= self.intensity * 3
         else:
             player.invincibility = 1
+        player.backpack.remove(self)
 
 
 small_potion_healing = Potion("Small Potion of Healing", 0, 1,)
@@ -539,7 +552,7 @@ class Player:
         self.pants = no_armour
         self.footwear = no_armour
         self.total_armour_class = 0
-        self.backpack = [small_potion_healing]
+        self.backpack = [small_potion_weakness]
         self.bracelet1 = null_amulet
         self.bracelet2 = null_amulet
         self.necklace = null_amulet
@@ -550,10 +563,9 @@ class Player:
         self.level = 1
         self.xp = 0
         self.invincibility = 0
-        self.potion_pouch = []
 
 
 print('Welcome to the dungeon of rickrollia!')
 player = Player(input('What is your name, fellow adventurer?').title().lstrip(), 1, 500, 350)
-
+t.sleep(1)
 menu()
