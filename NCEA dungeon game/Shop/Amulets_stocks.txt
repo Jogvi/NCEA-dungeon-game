@@ -1,0 +1,9 @@
+small_amulet_strength
+medium_amulet_strength
+large_amulet_strength
+small_amulet_defense
+medium_amulet_defense
+large_amulet_defense
+small_amulet_healing
+medium_amulet_healing
+large_amulet_healing

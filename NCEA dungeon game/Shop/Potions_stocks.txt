@@ -1,0 +1,15 @@
+small_potion_healing
+medium_potion_healing
+large_potion_healing
+small_potion_poison
+medium_potion_poison
+large_potion_poison
+small_potion_damage
+medium_potion_damage
+large_potion_damage
+small_potion_weakness
+medium_potion_weakness
+large_potion_weakness
+small_invincibility_potion
+medium_invincibility_potion
+large_invincibility_potion
