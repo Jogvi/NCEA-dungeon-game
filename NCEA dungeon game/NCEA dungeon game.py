@@ -144,7 +144,7 @@ def menu():
 
 def delve():
     stage = r.randint(0, 100)
-    if stage <= 900:
+    if stage <= 0:
         while True:
             monster = r.choice(monsters)
             if monster.level <= player.level:
@@ -174,16 +174,19 @@ def ask_potion(monster):
         for i in player.backpack:
             if i.level == 0:
                 useable_potions.append(i)
-        for a in range(len(useable_potions)):
-            print('1:', useable_potions[a].name)
-            try:
-                action = int(input('What potion would you like to use?'))-1
-                if action >= len(useable_potions):
-                    raise ValueError
-            except ValueError:
-                print("Oops")
-                ask_potion(monster)
-            useable_potions[action].use(monster)
+        if len(useable_potions) > 0:
+            for a in range(len(useable_potions)):
+                print('1:', useable_potions[a].name)
+                try:
+                    action = int(input('What potion would you like to use?'))-1
+                    if action >= len(useable_potions):
+                        raise ValueError
+                except ValueError:
+                    print("Oops")
+                    ask_potion(monster)
+                useable_potions[action].use(monster)
+        else:
+            print('Oops, you do not have any potions')
 
 
 def fight(monster):
@@ -256,7 +259,7 @@ def bank():
         if action == 1:
             deposit_amount = int(input('How much would you like to deposit?'))
             if deposit_amount <= player.money:
-                if input('You are about to deposit {deposit_amount}. Are you sure?') in yes_inputs:
+                if input(f'You are about to deposit {deposit_amount} ducats. Are you sure?') in yes_inputs:
                     player.money -= deposit_amount
                     player.bank_money += deposit_amount
                 else:
@@ -271,6 +274,7 @@ def bank():
             withdrawal_amount = int(input("how much would you like to withdraw"))
             if withdrawal_amount <= player.bank_money:
                 player.bank_money -= player.bank_money
+                print(f'You withdrew {withdrawal_amount} ducats')
         else:
             if player.bank_money > 0:
                 print(f'Sorry, your bank account only has {player.bank_money} ducats')
@@ -288,71 +292,62 @@ def remove_character(item, remove):
 
 
 def shop():
-    shopkeeper_id = r.randint(10, 19)
-    #shop_id = r.randint(1, 9)
-    shop_id = 6
     with open('Stages\\Shop\\Shops.txt', 'r') as f:
         content = f.readlines()
-        shop_name = content[shop_id - 1].strip()
-        shopkeeper = content[shopkeeper_id].strip()
+    shop_id = r.randint(0,3)
+    shopkeeper_id = r.randint(4,len(content))
+    shop_name = content[shop_id].strip()
+    shopkeeper = content[shopkeeper_id].strip()
     with open('Stages\\Shop\\Shop_Descriptions.txt', 'r') as f:
         content = f.readlines()
-        shop_description = content[shop_id - 1]
+        shop_description = content[shop_id]
     print(f"welcome to {shopkeeper}'s {shop_name}. I am {shopkeeper}.")
     t.sleep(1)
     print(shop_description)
     input('Press [Enter] to continue')
     # if shop is inferior to 3 it is a service
-    if shop_id > 4:
-        print('this is what we have on sale')
-        shop_stock = stock_dict[shop_id]
-        with open(shop_stock, 'r') as f:
-            content = f.readlines()
-
-        items_on_sale = []
-        loop = 0
-        while loop < 3:
-            item = content[r.randint(0, len(content)-1)].strip()
-            if eval(item).level <= player.level:
-                items_on_sale.append(item)
-                print(f'{loop + 1}:{eval(item).name} : {eval(item).price}')
-                loop += 1
-                t.sleep(0.3)
-        action = input('Would you like to buy something?You currently have '
+    print('this is what we have on sale')
+    shop_stock = stock_dict[shop_id]
+    with open(shop_stock, 'r') as f:
+        content = f.readlines()
+    items_on_sale = []
+    loop = 0
+    while loop < 3:
+        item = content[r.randint(0, len(content)-1)].strip()
+        if eval(item).level <= player.level:
+            items_on_sale.append(item)
+            print(f'{loop + 1}:{eval(item).name} : {eval(item).price}')
+            loop += 1
+            t.sleep(0.3)
+    action = input('Would you like to buy something?You currently have '
                        f'{player.money} Ducats \n')
-        if action in yes_inputs:
-            t.sleep(0.2)
-            action = int(input('What would you like to buy? (1,2 or 3)\n'))
-            global item_bought
-            item = items_on_sale[action - 1]
-            item = eval(item)
-            if item.price <= player.money:
-                player.money -= item.price
-                if item.equippable:
-                    action = input(f'Do you want to equip your new {item.name}? \n')
-                    if action in yes_inputs:
-                        t.sleep(0.5)
-                        equip_item(item)
-                    elif action in no_inputs:
-                        player.backpack.append(item)
-                    else:
-                        print("I think you've misspelled your input")
+    if action in yes_inputs:
+        t.sleep(0.2)
+        action = int(input('What would you like to buy? (1,2 or 3)\n'))
+        global item_bought
+        item = items_on_sale[action - 1]
+        item = eval(item)
+        if item.price <= player.money:
+            player.money -= item.price
+            if item.equippable:
+                action = input(f'Do you want to equip your new {item.name}? \n')
+                if action in yes_inputs:
+                    t.sleep(0.5)
+                    equip_item(item)
+                elif action in no_inputs:
+                    player.backpack.append(item)
+                else:
+                    print("I think you've misspelled your input")
                 
-            else:
-                print('sorry, you dont have enough money...')
-                t.sleep(2)
-                shop()
         else:
-            print('See you soon!')
-        menu()
+            print('sorry, you dont have enough money...')
+            t.sleep(2)
+            shop()
     else:
-        action = input('Would you like to use our services?'
-                       f'You currently have {player.money} Ducats \n')
-        if action in yes_inputs:
-            print('Services will be available soon')
-            menu()
-        else:
-            menu()
+        print('See you soon!')
+    elif shop_id == 1:
+        bank()
+    menu()
 
 
 def healer():
